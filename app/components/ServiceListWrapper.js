@@ -21,7 +21,7 @@ export default function ServiceListWrapper() {
         onlineCount={onlineServices}
         onlinePercentage={onlinePercentage}
       />
-      <main className="relative z-10 px-6" style={{ paddingBottom: '80px' }}>
+      <main className="relative z-10 px-6 pt=" style={{ paddingBottom: '80px' }}>
         <div className="shell flex flex-col gap-8">
           <ServiceList services={services} onStatusUpdate={setOnlineServices} />
           <SystemFooter />

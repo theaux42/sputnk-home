@@ -19,7 +19,7 @@ export default function WireframeGrid() {
 
     // Grid configuration
     const gridSize = 54;
-    const lineColor = 'rgba(120, 126, 140, 0.12)';
+    const lineColor = 'rgba(120, 126, 140, 0.32)';
 
     const drawGrid = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);

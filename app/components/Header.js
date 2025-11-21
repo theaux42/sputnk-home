@@ -130,14 +130,12 @@ export default function Header({ serviceCount = 0, onlineCount = 0, onlinePercen
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative z-10">
             <div className="relative">
               <div className="w-16 h-16 flex items-center justify-center rounded-[4px]" style={{
-                border: '1px solid var(--border-primary)',
-                background: 'linear-gradient(145deg, rgba(111, 213, 255, 0.12), rgba(11, 16, 32, 0.82))'
               }}>
                 <Image
                   src="/sputnk-logo.png"
                   alt="SPUTNK"
-                  width={44}
-                  height={44}
+                  width={128}
+                  height={128}
                   className="relative"
                 />
               </div>
