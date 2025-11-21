@@ -1,108 +1,86 @@
 'use client';
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import StatusBadge from './statusBadge';
-import { gsap } from 'gsap';
 
 const ServiceCard = ({ service, status, index }) => {
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    if (!cardRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // Animation d'entrée avec délai basé sur l'index
-      gsap.fromTo(cardRef.current,
-        {
-          y: 50,
-          opacity: 0
-        },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: index * 0.1,
-          ease: 'power3.out'
-        }
-      );
-    }, cardRef);
-
-    return () => ctx.revert();
-  }, [index]);
-
-  const handleMouseEnter = () => {
-    gsap.to(cardRef.current, {
-      y: -8,
-      duration: 0.3,
-      ease: 'power2.out'
-    });
-  };
-
-  const handleMouseLeave = () => {
-    gsap.to(cardRef.current, {
-      y: 0,
-      duration: 0.3,
-      ease: 'power2.out'
-    });
-  };
+  const isOnline = status?.isOnline ?? null;
 
   return (
-    <Link 
+    <Link
       href={service.link}
-      ref={cardRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="group relative block bg-black/40 backdrop-blur-xl border border-zinc-900/50 hover:border-zinc-700/80 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-zinc-900/50"
+      className="svc-card group relative block panel panel-hover overflow-hidden transition-all duration-300"
+      style={{
+        padding: '16px',
+        borderColor: 'var(--border-primary)'
+      }}
     >
-      {/* Lignes de scan animées */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-800/10 to-transparent animate-scan"></div>
+      <div className="card-glow" />
+      <div className="card-scan" />
+      <div className="beam" style={{ opacity: 0.08 }} />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" style={{ borderRadius: 'var(--radius-panel)' }}>
+        <div style={{
+          backgroundImage: 'linear-gradient(var(--border-grid) 1px, transparent 1px), linear-gradient(90deg, var(--border-grid) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+          opacity: 0.04,
+          width: '100%',
+          height: '100%',
+          borderRadius: 'var(--radius-panel)'
+        }}></div>
       </div>
-      
-      {/* Coins décoratifs style sci-fi */}
-      <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-zinc-700"></div>
-      <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-zinc-700"></div>
-      <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-zinc-700"></div>
-      <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-zinc-700"></div>
-      
-      {/* Indicateur de statut */}
-      <StatusBadge status={status} />
 
-      <div className="relative z-10 p-4 flex items-start gap-4">
-        {/* Icône avec effet néon */}
-        <div className="flex-shrink-0 w-12 h-12 border border-zinc-800 rounded bg-zinc-950/80 flex items-center justify-center text-zinc-500 group-hover:text-zinc-300 group-hover:border-zinc-700 transition-all duration-300 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-zinc-700/0 via-zinc-700/10 to-zinc-700/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <svg className="relative z-10" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
+      <div className="relative z-10 space-y-2">
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-11 h-11 rounded-[4px]" style={{
+            flexShrink: 0,
+            overflow: 'hidden'
+          }}>
+            {service.logo ? (
+              <Image
+                src={service.logo}
+                alt={service.title}
+                width={44}
+                height={44}
+                style={{ objectFit: 'contain' }}
+              />
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-secondary)' }} className="group-hover:text-[var(--text-primary)] transition-colors">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 3a9 9 0 0 1 9 9" strokeLinecap="round"></path>
+                <path d="M3 12a9 9 0 0 1 9-9" strokeLinecap="round"></path>
+                <path d="M12 12l6 6" strokeLinecap="round"></path>
+              </svg>
+            )}
+          </div>
+          <div className="flex-1 min-w-0 flex flex-col gap-1">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-h3" style={{
+                color: 'var(--text-primary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.3px',
+                fontSize: '12px'
+              }}>
+                {service.title}
+              </h3>
+              <StatusBadge status={status} />
+            </div>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-mono-log" style={{ color: 'var(--text-secondary)', fontSize: '10px', lineHeight: '1.35' }}>
+                {service.description}
+              </p>
+              {isOnline ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '2px' }}>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              ) : null}
+            </div>
+          </div>
         </div>
-
-        <div className="flex-1 min-w-0 pr-20">
-          <h3 className="text-lg font-medium text-white mb-1.5 transition-colors group-hover:text-gray-200 tracking-tight">
-            {service.title}
-          </h3>
-          <p className="text-gray-500 text-xs leading-relaxed font-light">
-            {service.description}
-          </p>
-        </div>
-      </div>
-
-      {/* Ligne lumineuse en bas */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-zinc-900">
-        <div className="h-full w-0 bg-gradient-to-r from-transparent via-zinc-600 to-transparent group-hover:w-full transition-all duration-700 ease-out"></div>
-      </div>
-
-      {/* Indicateur hexagonal */}
-      <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-600">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-        </svg>
       </div>
     </Link>
   );
-}
+};
 
 export default ServiceCard;
-

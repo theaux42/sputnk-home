@@ -5,27 +5,29 @@ let statusCache = {};
 let lastCheck = 0;
 const CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes en millisecondes
 
+async function pingService(service) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    // HEAD first to avoid downloading payloads; fall back to GET if HEAD is rejected.
+    const head = await fetch(service.link, { method: 'HEAD', redirect: 'follow', signal: controller.signal, cache: 'no-store' });
+    clearTimeout(timeoutId);
+    if (head.ok) return true;
+
+    // If HEAD gave a non-OK, try a lightweight GET to detect 404/503.
+    const getResp = await fetch(service.link, { method: 'GET', redirect: 'follow', signal: controller.signal, cache: 'no-store' });
+    return getResp.ok && getResp.status < 400;
+  } catch (error) {
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function checkAllServices(services) {
   const statusPromises = services.map(async (service) => {
-    let isOnline = false;
-
-    try {
-      // Utiliser un service de ping externe qui peut vérifier les URLs
-      const pingUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(service.link)}`;
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      const response = await fetch(pingUrl, {
-        signal: controller.signal,
-        cache: 'no-store',
-      });
-
-      clearTimeout(timeoutId);
-      isOnline = response.ok;
-    } catch (error) {
-      console.error(`Error checking ${service.name}:`, error.message);
-      isOnline = false;
-    }
+    const isOnline = await pingService(service);
 
     return {
       id: service.id,
@@ -44,7 +46,9 @@ async function checkAllServices(services) {
 
   lastCheck = Date.now();
   return statusCache;
-}export async function GET(request) {
+}
+
+export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const forceCheck = searchParams.get('force') === 'true';
 
